@@ -4,21 +4,35 @@
  */
 package com.alura.jdbc.factory;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.sql.DataSource;
 
-/**
- *
- * @author scris
- */
 public class ConnectionFactory {
 
-    public static Connection recuperaConexion() throws SQLException {
-        String connectionString = "jdbc:mysql://localhost/control_de_stock?useTimeZone=true&serverTimeZone=UTC";
-        String user = "root";
-        String pass = "MySQL@2023";
-        return DriverManager.getConnection(connectionString, user, pass);
+    private String connectionString = "jdbc:mysql://localhost/control_de_stock?useTimeZone=true&serverTimeZone=UTC";
+    private String user = "root";
+    private String pass = "MySQL@2023";
+    private DataSource dataSource;
+
+    public ConnectionFactory() {
+        ComboPooledDataSource pooledDataSource = new ComboPooledDataSource();
+        pooledDataSource.setJdbcUrl(connectionString);
+        pooledDataSource.setUser(user);
+        pooledDataSource.setPassword(pass);
+        pooledDataSource.setMaxPoolSize(10);
+        this.dataSource = pooledDataSource;
     }
 
+    public Connection recuperaConexion()  {
+        try {
+            return this.dataSource.getConnection();
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 }
